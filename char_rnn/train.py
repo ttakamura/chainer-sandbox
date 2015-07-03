@@ -27,6 +27,7 @@ def load_data(args):
 
 # arguments
 parser = argparse.ArgumentParser()
+parser.add_argument('--net',                        type=str,   default='lstm')
 parser.add_argument('--data_dir',                   type=str,   default='data/tinyshakespeare')
 parser.add_argument('--checkpoint_dir',             type=str,   default='cv')
 parser.add_argument('--gpu',                        type=int,   default=0)
@@ -59,7 +60,12 @@ pickle.dump(vocab, open('%s/vocab.bin'%args.data_dir, 'wb'))
 if len(args.init_from) > 0:
     model = pickle.load(open(args.init_from, 'rb'))
 else:
-    model = CharRNN(len(vocab), n_units)
+    if args.net == 'lstm':
+        model = CharRNN(len(vocab), n_units)
+    elif args.net == 'irnn':
+        model = CharIRNN(len(vocab), n_units)
+    else:
+        error "unknown net"
 
 if args.gpu >= 0:
     cuda.init()
