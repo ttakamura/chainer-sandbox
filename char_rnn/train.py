@@ -10,7 +10,8 @@ import os
 import numpy as np
 from chainer import cuda, Variable, FunctionSet, optimizers
 import chainer.functions as F
-from CharRNN import CharRNN, make_initial_state
+from CharRNN  import CharRNN, make_initial_state
+from CharIRNN import CharIRNN, make_irnn_initial_state
 
 # input data
 def load_data(args):

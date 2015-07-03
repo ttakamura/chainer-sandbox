@@ -42,7 +42,7 @@ class CharIRNN(FunctionSet):
 
         return state, F.softmax(y)
 
-def make_initial_state(n_units, batchsize=50, train=True):
+def make_irnn_initial_state(n_units, batchsize=50, train=True):
     return {name: Variable(np.zeros((batchsize, n_units), dtype=np.float32),
             volatile=not train)
             for name in ('h1', 'h2')}
