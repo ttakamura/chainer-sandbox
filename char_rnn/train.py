@@ -16,8 +16,11 @@ from CharRNN import CharRNN, make_initial_state
 def load_data(args):
     vocab = {}
     print ('%s/input.txt'% args.data_dir)
-    words = open('%s/input.txt' % args.data_dir, 'rb').read()
+    words = open('%s/input.txt' % args.data_dir, 'rb').read().decode("utf-8")
     words = list(words)
+    print words[0]
+    print words[1]
+    print words[2]
     dataset = np.ndarray((len(words),), dtype=np.int32)
     for i, word in enumerate(words):
         if word not in vocab:

@@ -3,7 +3,6 @@ from chainer import Variable, FunctionSet
 import chainer.functions as F
 
 class CharRNN(FunctionSet):
-
     def __init__(self, n_vocab, n_units):
         super(CharRNN, self).__init__(
             embed = F.EmbedID(n_vocab, n_units),
