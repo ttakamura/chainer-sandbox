@@ -116,7 +116,7 @@ for i in xrange(jump * n_epochs):
         optimizer.clip_grads(grad_clip)
         optimizer.update()
 
-    if (i + 1) % 10000 == 0:
+    if (i + 1) % 60000 == 0:
         now      = time.time()
         throuput = 10000. / (now - cur_at)
         perp     = math.exp(cuda.to_cpu(cur_log_perp) / 10000)
