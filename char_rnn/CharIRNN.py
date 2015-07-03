@@ -14,6 +14,9 @@ class CharIRNN(FunctionSet):
         )
         for param in self.parameters:
             param[:] = np.random.uniform(-0.08, 0.08, param.shape)
+        # IRNN
+        self.l1_h.W = np.eye(self.l1_h.W.shape[0], dtype=np.float32)
+        self.l2_h.W = np.eye(self.l2_h.W.shape[0], dtype=np.float32)
 
     def forward_one_step(self, x_data, y_data, state, train=True, dropout_ratio=0.5):
         x = Variable(x_data, volatile=not train)
