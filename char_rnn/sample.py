@@ -67,7 +67,7 @@ for i in xrange(args.length):
         index = np.random.choice(range(len(probability)), p=probability)
     else:
         index = np.argmax(cuda.to_cpu(prob.data))
-    sys.stdout.write(ivocab[index])
+    sys.stdout.write(ivocab[index].decode('utf-8'))
 
     prev_char = np.array([index])
     if args.gpu >= 0:
