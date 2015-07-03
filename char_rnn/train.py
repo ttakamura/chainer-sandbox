@@ -65,7 +65,7 @@ else:
     elif args.net == 'irnn':
         model = CharIRNN(len(vocab), n_units)
     else:
-        error "unknown net"
+        error("unknown net")
 
 if args.gpu >= 0:
     cuda.init()
