@@ -18,7 +18,6 @@ def load_data(args):
     print ('%s/input.txt'% args.data_dir)
     words = open('%s/input.txt' % args.data_dir, 'rb').read().decode("utf-8")
     words = list(words)
-    # print words[0].encode("utf-8")
     dataset = np.ndarray((len(words),), dtype=np.int32)
     for i, word in enumerate(words):
         if word not in vocab:
