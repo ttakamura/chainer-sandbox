@@ -24,9 +24,9 @@ class CharIRNN(FunctionSet):
 
         h0      = self.embed(x)
         h1_in   = self.l1_x(F.dropout(h0, ratio=dropout_ratio, train=train)) + self.l1_h(state['h1'])
-        h1      = F.relu(h1_in)
+        h1      = F.leaky_relu(h1_in)
         h2_in   = self.l2_x(F.dropout(h1, ratio=dropout_ratio, train=train)) + self.l2_h(state['h2'])
-        h2      = F.relu(h2_in)
+        h2      = F.leaky_relu(h2_in)
         y       = self.l3(F.dropout(h2, ratio=dropout_ratio, train=train))
         state   = {'h1': h1, 'h2': h2}
 
@@ -37,9 +37,9 @@ class CharIRNN(FunctionSet):
 
         h0      = self.embed(x)
         h1_in   = self.l1_x(h0) + self.l1_h(state['h1'])
-        h1      = F.relu(h1_in)
+        h1      = F.leaky_relu(h1_in)
         h2_in   = self.l2_x(h1) + self.l2_h(state['h2'])
-        h2      = F.relu(h2_in)
+        h2      = F.leaky_relu(h2_in)
         y       = self.l3(h2)
         state   = {'h1': h1, 'h2': h2}
 
