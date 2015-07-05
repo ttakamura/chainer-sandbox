@@ -10,7 +10,7 @@ import caffe
 # --------------------------------------------------------------------------------------
 def showarray(a, fmt='jpeg'):
     a = np.uint8(np.clip(a, 0, 255))
-    filepath = '/mnt/tmp/dream.jpeg'
+    filepath = '/mnt/tmp/dream_{0}.jpg'.format(np.random.rand())
     PIL.Image.fromarray(a).save(filepath, fmt)
 
 def preprocess(net, img):
