@@ -75,7 +75,7 @@ def deepdream(net, base_img, iter_n=10, octave_n=4, octave_scale=1.4, end='incep
     return deprocess(net, src.data[0])
 
 # --------------------------------------------------------------------------------------
-model_path = '../caffe/models/bvlc_googlenet/' # substitute your path here
+model_path = './models/bvlc_googlenet/' # substitute your path here
 net_fn     = model_path + 'deploy.prototxt'
 param_fn   = model_path + 'bvlc_googlenet.caffemodel'
 
@@ -90,5 +90,4 @@ net = caffe.Classifier('tmp.prototxt', param_fn,
                        mean = np.float32([104.0, 116.0, 122.0]), # ImageNet mean, training set dependent
                        channel_swap = (2,1,0))                   # the reference model has channels in BGR order instead of RGB
 
-img = np.float32(PIL.Image.open('cloud.jpg'))
-showarray(img)
+cloud_img = np.float32(PIL.Image.open('cloud.jpg'))
