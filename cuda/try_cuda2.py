@@ -2,6 +2,7 @@ import pycuda.autoinit
 import pycuda.driver as drv
 import numpy as np
 from pycuda.compiler import SourceModule
+from pycuda.driver   import In, Out
 
 mod = SourceModule("""
 __global__ void multiply_them(float *dest, float *a, float *b)
@@ -17,6 +18,6 @@ a = np.random.randn(400).astype(np.float32)
 b = np.random.randn(400).astype(np.float32)
 dest = np.zeros_like(a)
 
-multip_them(drv.Out(dest), drv.In(a), drv.In(b), block=(400,1,1), grid=(1,1))
+multip_them(Out(dest), In(a), In(b), block=(400,1,1), grid=(1,1))
 
-print dest
+print dest - a*b
