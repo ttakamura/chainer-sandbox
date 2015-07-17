@@ -114,7 +114,6 @@ for i in xrange(jump * n_epochs):
             accum_loss = Variable(cuda.zeros(()))
         else:
             accum_loss = Variable(np.zeros(()))
-
         optimizer.clip_grads(grad_clip)
         optimizer.update()
 
