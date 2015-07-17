@@ -10,7 +10,7 @@ import os
 import numpy as np
 from chainer import cuda, Variable, FunctionSet, optimizers
 import chainer.functions as F
-from CharRNN  import CharRNN, make_initial_state
+from CharLSTM import CharLSTM, make_initial_state
 from CharIRNN import CharIRNN, make_irnn_initial_state
 
 # input data
@@ -62,9 +62,11 @@ if len(args.init_from) > 0:
     model = pickle.load(open(args.init_from, 'rb'))
 else:
     if args.net == 'lstm':
-        model = CharRNN(len(vocab), n_units)
+        model = CharLSTM(len(vocab), n_units)
+        state = make_initial_state(n_units, batchsize=batchsize)
     elif args.net == 'irnn':
         model = CharIRNN(len(vocab), n_units)
+        state = make_irnn_initial_state(n_units, batchsize=batchsize)
     else:
         error("unknown net")
 
@@ -81,7 +83,7 @@ cur_log_perp = cuda.zeros(())
 epoch        = 0
 start_at     = time.time()
 cur_at       = start_at
-state        = make_initial_state(n_units, batchsize=batchsize)
+
 if args.gpu >= 0:
     accum_loss   = Variable(cuda.zeros(()))
     for key, value in state.items():

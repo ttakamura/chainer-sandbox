@@ -8,7 +8,8 @@ import cPickle as pickle
 import numpy as np
 from chainer import cuda, Variable, FunctionSet
 import chainer.functions as F
-from CharRNN import CharRNN, make_initial_state
+from CharLSTM import CharLSTM, make_initial_state
+from CharIRNN import CharIRNN, make_irnn_initial_state
 
 #%% arguments
 parser = argparse.ArgumentParser()

@@ -2,9 +2,9 @@ import numpy as np
 from chainer import Variable, FunctionSet
 import chainer.functions as F
 
-class CharRNN(FunctionSet):
+class CharLSTM(FunctionSet):
     def __init__(self, n_vocab, n_units):
-        super(CharRNN, self).__init__(
+        super(CharLSTM, self).__init__(
             embed = F.EmbedID(n_vocab, n_units),
             l1_x = F.Linear(n_units, 4*n_units),
             l1_h = F.Linear(n_units, 4*n_units),
