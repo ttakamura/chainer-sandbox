@@ -124,7 +124,7 @@ for i in xrange(jump * n_epochs):
         perp     = math.exp(cuda.to_cpu(cur_log_perp) / 10000)
         print 'iter {} training perplexity: {:.2f} ({:.2f} iters/sec)'.format(
             i + 1, perp, throuput)
-        cur_at   = now
+        cur_at = now
         cur_log_perp.fill(0)
 
         fn = ('%s/charrnn_epoch_%.2f_%.2f.chainermodel' % (args.checkpoint_dir, float(i)/jump, perp))
