@@ -16,11 +16,10 @@ parser = argparse.ArgumentParser()
 
 parser.add_argument('--model',      type=str,   required=True)
 parser.add_argument('--vocabulary', type=str,   required=True)
-
 parser.add_argument('--seed',       type=int,   default=123)
 parser.add_argument('--sample',     type=int,   default=1)
 parser.add_argument('--primetext',  type=str,   default='')
-parser.add_argument('--length',     type=int,   default=2000)
+parser.add_argument('--length',     type=int,   default=1000)
 parser.add_argument('--gpu',        type=int,   default=0)
 
 args = parser.parse_args()
@@ -50,6 +49,7 @@ if args.gpu >= 0:
 prev_char = np.array([0])
 if args.gpu >= 0:
     prev_char = cuda.to_gpu(prev_char)
+
 if len(args.primetext) > 0:
     for i in args.primetext:
         sys.stdout.write(i)
@@ -68,6 +68,7 @@ for i in xrange(args.length):
         index = np.random.choice(range(len(probability)), p=probability)
     else:
         index = np.argmax(cuda.to_cpu(prob.data))
+
     sys.stdout.write(ivocab[index].encode('utf-8'))
 
     prev_char = np.array([index])
