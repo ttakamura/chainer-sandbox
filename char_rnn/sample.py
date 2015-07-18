@@ -46,7 +46,7 @@ if args.gpu >= 0:
     for key, value in state.items():
         value.data = cuda.to_gpu(value.data)
 
-prev_char = np.array([0], dtype=np.float32)
+prev_char = np.array([0], dtype=np.int32)
 if args.gpu >= 0:
     prev_char = cuda.to_gpu(prev_char)
 
@@ -71,7 +71,7 @@ for i in xrange(args.length):
 
     sys.stdout.write(ivocab[index].encode('utf-8'))
 
-    prev_char = np.array([index])
+    prev_char = np.array([index], dtype=np.int32)
     if args.gpu >= 0:
         prev_char = cuda.to_gpu(prev_char)
 
