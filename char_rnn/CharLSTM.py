@@ -42,7 +42,7 @@ class CharLSTM(FunctionSet):
 
         return state, F.softmax(y)
 
-def make_initial_state(n_units, batchsize=50, train=True):
-    return {name: Variable(np.zeros((batchsize, n_units), dtype=np.float32),
-            volatile=not train)
-            for name in ('c1', 'h1', 'c2', 'h2')}
+    def make_initial_state(self, n_units, batchsize=50, train=True):
+        return {name: Variable(np.zeros((batchsize, n_units), dtype=np.float32),
+                               volatile=not train)
+                for name in ('c1', 'h1', 'c2', 'h2')}

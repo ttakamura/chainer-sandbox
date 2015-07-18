@@ -8,8 +8,8 @@ import cPickle as pickle
 import numpy as np
 from chainer import cuda, Variable, FunctionSet
 import chainer.functions as F
-from CharLSTM import CharLSTM, make_initial_state
-from CharIRNN import CharIRNN, make_irnn_initial_state
+from CharLSTM import CharLSTM
+from CharIRNN import CharIRNN
 
 #%% arguments
 parser = argparse.ArgumentParser()
@@ -41,7 +41,8 @@ if args.gpu >= 0:
     model.to_gpu()
 
 # initialize generator
-state = make_initial_state(n_units, batchsize=1, train=False)
+state = model.make_initial_state(n_units, batchsize=1, train=False)
+
 if args.gpu >= 0:
     for key, value in state.items():
         value.data = cuda.to_gpu(value.data)

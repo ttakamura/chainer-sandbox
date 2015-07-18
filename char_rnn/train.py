@@ -10,8 +10,8 @@ import os
 import numpy as np
 from chainer import cuda, Variable, FunctionSet, optimizers
 import chainer.functions as F
-from CharLSTM import CharLSTM, make_initial_state
-from CharIRNN import CharIRNN, make_irnn_initial_state
+from CharLSTM import CharLSTM
+from CharIRNN import CharIRNN
 
 # input data
 def load_data(args):
@@ -63,12 +63,12 @@ if len(args.init_from) > 0:
 else:
     if args.net == 'lstm':
         model = CharLSTM(len(vocab), n_units)
-        state = make_initial_state(n_units, batchsize=batchsize)
     elif args.net == 'irnn':
         model = CharIRNN(len(vocab), n_units)
-        state = make_irnn_initial_state(n_units, batchsize=batchsize)
     else:
         error("unknown net")
+
+state = model.make_initial_state(n_units, batchsize=batchsize)
 
 if args.gpu >= 0:
     cuda.init()
