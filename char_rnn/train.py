@@ -141,7 +141,7 @@ for i in xrange(jump * n_epochs):
     if (i + 1) % jump == 0:
         epoch += 1
 
-        if not isinstance(optimizer, optimizers.Adam) && epoch >= args.learning_rate_decay_after:
+        if not isinstance(optimizer, optimizers.Adam) and epoch >= args.learning_rate_decay_after:
             optimizer.lr *= args.learning_rate_decay
             print 'decayed learning rate by a factor {} to {}'.format(args.learning_rate_decay, optimizer.lr)
 
