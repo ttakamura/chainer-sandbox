@@ -77,9 +77,9 @@ if args.gpu >= 0:
 
 if args.optimizer == 'rmsprop':
     optimizer = optimizers.RMSprop(lr=args.learning_rate, alpha=args.decay_rate)
-elif args.optimizer = 'adam':
+elif args.optimizer == 'adam':
     optimizer = optimizers.Adam()
-elif args.optimizers = 'adagrad':
+elif args.optimizers == 'adagrad':
     optimizer = optimizers.AdaGrad(lr=args.learning_rate)
 else:
     error("unknown optimizer")
