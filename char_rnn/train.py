@@ -43,6 +43,7 @@ parser.add_argument('--batchsize',                  type=int,   default=50)
 parser.add_argument('--epochs',                     type=int,   default=50)
 parser.add_argument('--grad_clip',                  type=int,   default=5)
 parser.add_argument('--init_from',                  type=str,   default='')
+parser.add_argument('--optimizer',                  type=str,   default='rmsprop')
 
 args = parser.parse_args()
 
@@ -74,7 +75,15 @@ if args.gpu >= 0:
     cuda.init()
     model.to_gpu()
 
-optimizer = optimizers.RMSprop(lr=args.learning_rate, alpha=args.decay_rate, eps=1e-8)
+if args.optimizer == 'rmsprop':
+    optimizer = optimizers.RMSprop(lr=args.learning_rate, alpha=args.decay_rate)
+elif args.optimizer = 'adam':
+    optimizer = optimizers.Adam()
+elif args.optimizers = 'adagrad':
+    optimizer = optimizers.AdaGrad(lr=args.learning_rate)
+else:
+    error("unknown optimizer")
+
 optimizer.setup(model.collect_parameters())
 
 whole_len    = train_data.shape[0]
@@ -132,7 +141,7 @@ for i in xrange(jump * n_epochs):
     if (i + 1) % jump == 0:
         epoch += 1
 
-        if epoch >= args.learning_rate_decay_after:
+        if !isinstance(optimizer, optimizers.Adam) && epoch >= args.learning_rate_decay_after:
             optimizer.lr *= args.learning_rate_decay
             print 'decayed learning rate by a factor {} to {}'.format(args.learning_rate_decay, optimizer.lr)
 
