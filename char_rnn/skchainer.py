@@ -68,51 +68,45 @@ class BaseChainerEstimator(BaseEstimator):
             self.optimizer = optimizers.Adam()
         self.optimizer.setup(self.network.collect_parameters())
 
-    def forward(self, x):
-        error("Not yet implemented")
-        # return self.network.l1(x)
-
-    def loss_func(self, y, t):
-        error("Not yet implemented")
-        # return F.mean_squared_error(y, t)
-
-    def predict_func(self, y):
-        error("Not yet implemented")
-        # return F.identity(y)
-
     def fit(self, x_data, y_data):
-        n_samples  = x_data.shape[0]
-        n_features = x_data.shape[1]
-        score      = 0.0
-        self.converge = False
-        self.setup_network(n_features)
+        self.n_samples  = x_data.shape[0]
+        self.n_features = x_data.shape[1]
+        self.converge   = False
+
+        self.setup_network(self.n_features)
         if self.gpu >= 0:
             cuda.init()
             self.network.to_gpu()
-            x_data = cuda.to_gpu(x_data)
-            y_data = cuda.to_gpu(y_data)
         self.setup_optimizer()
+
+        score = 0.0
         for epoch in xrange(self.epochs):
             if not self.converge:
-                for i in xrange(n_samples / self.batch_size):
-                    x, t  = self.make_batch(x_data, y_data, i)
-                    loss  = self.fit_update(x, t)
+                for i in xrange(self.n_samples / self.batch_size):
+                    x_batch, y_batch = self.make_batch(x_data, y_data, i)
+                    if self.gpu >= 0:
+                        x = Variable(cuda.to_gpu(x))
+                        t = Variable(cuda.to_gpu(t))
+                    else:
+                        x = Variable(x_batch)
+                        t = Variable(y_batch)
+                    loss = self.forward_train(x, t)
+                    self.fit_update(loss, i)
                 score = self.fit_report(epoch, loss, score)
         return self
 
-    def make_batch(self, x_data, y_data, i):
-        first = i     * self.batch_size
-        last  = (i+1) * self.batch_size
-        x     = Variable(x_data[first:last])
-        t     = Variable(y_data[first:last])
-        return x, t
+    def make_batch(self, x_data, y_data, batch_id):
+        first   = batch_id     * self.batch_size
+        last    = (batch_id+1) * self.batch_size
+        x_batch = x_data[first:last]
+        y_batch = y_data[first:last]
+        return x_batch, y_batch
 
-    def fit_update(self, x, t):
+    def fit_update(self, loss, batch_id):
         self.optimizer.zero_grads()
-        loss = self.loss_func(self.forward(x), t)
         loss.backward()
+        # self.optimizer.clip_grads(grad_clip)
         self.optimizer.update()
-        return loss
 
     def fit_report(self, epoch, loss, prev_score):
         score = cuda.to_cpu(loss).data
@@ -128,8 +122,8 @@ class BaseChainerEstimator(BaseEstimator):
         if self.gpu >= 0:
             x_data = cuda.to_gpu(x_data)
         x = Variable(x_data)
-        y = self.forward(x)
-        return cuda.to_cpu(self.predict_func(y)).data
+        y = self.forward_predict(x)
+        return cuda.to_cpu(y).data
 
     def print_report(self, epoch, loss, score):
         print("epoch: {0}, loss: {1}, diff: {2}".format(epoch, loss[0], score[0]))
@@ -144,11 +138,13 @@ class ChainerClassifier(BaseChainerEstimator, ClassifierMixin):
     def predict(self, x_data):
         return BaseChainerEstimator.predict(self, x_data).argmax(1)
 
-    def loss_func(self, y, t):
+    def forward_train(self, x, t):
+        y = self.forward_inner(x, train=True)
         return F.softmax_cross_entropy(y, t)
 
-    def predict_func(self, h):
-        return F.softmax(h)
+    def forward_predict(self, x):
+        y = self.forward_inner(x, train=False)
+        return F.softmax(y)
 
 # --------------------------------------------------------------------------
 class LogisticRegression(ChainerClassifier):
@@ -165,7 +161,73 @@ class LogisticRegression(ChainerClassifier):
             l2 = F.Linear(self.net_hidden, self.net_out)
         )
 
-    def forward(self, x):
+    def forward_inner(self, x, train=True):
         h = F.relu(self.network.l1(x))
         y = self.network.l2(h)
         return y
+
+# --------------------------------------------------------------------------
+class RNNCharClassifier(ChainerClassifier):
+    def __init__(self, net_type='lstm', net_hidden=100,
+                       vocab_size=1000, dropout_ratio=0.0, seq_size=70, grad_clip=100.0,
+                       **params):
+        ChainerClassifier.__init__(self, **params)
+        self.net_hidden    = net_hidden
+        self.net_type      = net_type
+        self.vocab_size    = vocab_size
+        self.dropout_ratio = dropout_ratio
+        self.seq_size      = seq_size
+        self.grad_clip     = grad_clip
+        self.param_names.append('net_type')
+        self.param_names.append('net_hidden')
+        self.param_names.append('dropout_ratio')
+
+    def setup_network(self, n_features):
+        if self.net_type == 'lstm':
+            self.network = CharLSTM(self.vocab_size, self.net_hidden)
+        elif self.net_type == 'irnn':
+            self.network = CharIRNN(self.vocab_size, self.net_hidden)
+        else:
+            error("Unknown net_type")
+
+        self.state = self.network.make_initial_state(self.net_hidden, batch_size=self.batch_size)
+        if self.gpu >= 0:
+            for key, value in self.state.items():
+                value.data = cuda.to_gpu(value.data)
+
+        self.reset_accum_loss()
+
+    def reset_accum_loss(self):
+        if self.gpu >= 0:
+            self.accum_loss = Variable(cuda.zeros(()))
+        else:
+            self.accum_loss = Variable(np.zeros(()))
+
+    def forward_train(self, x, t):
+        new_state, loss = self.network.train(x, t, self.state, dropout_ratio=self.dropout_ratio)
+        self.state = new_state
+        return loss
+
+    def forward_predict(self, x):
+        new_state, prediction = self.network.predict(x, self.state)
+        self.state = new_state
+        return prediction
+
+    def fit_update(self, loss, batch_id):
+        self.accum_loss += loss
+
+        if (batch_id + 1) % self.seq_size == 0: # Run Truncated BPTT
+            self.optimizer.zero_grads()
+            self.accum_loss.backward()
+            self.accum_loss.unchain_backward()  # truncate
+            self.optimizer.clip_grads(self.grad_clip)
+            self.optimizer.update()
+            self.reset_accum_loss()
+
+    def make_batch(self, x_data, y_data, batch_id):
+        batch_num = self.n_samples / self.batch_size
+        x_batch = np.array([x_data[(batch_id + batch_num * j) % self.n_samples]
+                            for j in xrange(self.batch_size)])
+        y_batch = np.array([y_data[(batch_id + batch_num * j) % self.n_samples]
+                            for j in xrange(self.batch_num)])
+        return x_batch, y_batch
