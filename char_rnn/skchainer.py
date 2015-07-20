@@ -86,6 +86,11 @@ class BaseChainerEstimator(BaseEstimator):
         score      = 0.0
         self.converge = False
         self.setup_network(n_features)
+        if self.gpu >= 0:
+            cuda.init()
+            self.network.to_gpu()
+            x_data = cuda.to_gpu(x_data)
+            y_data = cuda.to_gpu(y_data)
         self.setup_optimizer()
         for epoch in xrange(self.epochs):
             if not self.converge:
@@ -110,7 +115,7 @@ class BaseChainerEstimator(BaseEstimator):
         return loss
 
     def fit_report(self, epoch, loss, prev_score):
-        score = loss.data
+        score = cuda.to_cpu(loss).data
         score_diff = prev_score - score
         if not score_diff == 0.0 and abs(score_diff) < self.threshold:
             # print("Finish fit iterations!! ==========================")
@@ -120,9 +125,11 @@ class BaseChainerEstimator(BaseEstimator):
         return score
 
     def predict(self, x_data):
+        if self.gpu >= 0:
+            x_data = cuda.to_gpu(x_data)
         x = Variable(x_data)
         y = self.forward(x)
-        return self.predict_func(y).data
+        return cuda.to_cpu(self.predict_func(y)).data
 
     def print_report(self, epoch, loss, score):
         print("epoch: {0}, loss: {1}, diff: {2}".format(epoch, loss[0], score[0]))
