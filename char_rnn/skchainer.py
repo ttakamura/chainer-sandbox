@@ -42,7 +42,7 @@ def grid_search(model, tuned_parameters, X_train, y_train, X_test, y_test, score
 
 # --------------------------------------------------------------------------
 class BaseChainerEstimator(BaseEstimator):
-    def __init__(self, epochs=1000, batch_size=100, report=0, threshold=1e-10,
+    def __init__(self, epochs=1000, batch_size=100, report=0, threshold=1e-10, gpu=-1,
                        opt_type='sgd', opt_lr=0.001):
         self.epochs     = epochs
         self.batch_size = batch_size
@@ -50,6 +50,11 @@ class BaseChainerEstimator(BaseEstimator):
         self.threshold  = threshold
         self.opt_type   = opt_type
         self.opt_lr     = opt_lr
+        self.gpu        = gpu
+        self.param_names = ['epochs', 'batch_size', 'threshold', 'opt_type', 'opt_lr']
+
+    def _get_param_names(self):
+        return self.param_names
 
     def setup_network(self, n_features):
         error("Not yet implemented")
@@ -137,12 +142,12 @@ class ChainerClassifier(BaseChainerEstimator, ClassifierMixin):
 
 # --------------------------------------------------------------------------
 class LogisticRegression(ChainerClassifier):
-    def __init__(self, epochs=100, batch_size=100, report=0, threshold=1e-10,
-                       net_hidden=100, net_out=5,
-                       opt_type='sgd', opt_lr=0.001):
-        BaseChainerEstimator.__init__(self, epochs=epochs, batch_size=batch_size, report=report, threshold=threshold, opt_type=opt_type, opt_lr=opt_lr)
+    def __init__(self, net_hidden=100, net_out=5, **params):
+        BaseChainerEstimator.__init__(self, **params)
         self.net_hidden = net_hidden
         self.net_out    = net_out
+        self.param_names.append('net_hidden')
+        self.param_names.append('net_out')
 
     def setup_network(self, n_features):
         self.network = FunctionSet(
