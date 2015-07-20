@@ -6,7 +6,7 @@ import skchainer as skc
 
 digits = datasets.load_digits()
 X = digits.data.astype(np.float32)
-y = digits.target.astype(np.float32)
+y = digits.target.astype(np.int32)
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=0)
 
 tuned_parameters = [

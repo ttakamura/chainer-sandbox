@@ -138,6 +138,9 @@ class ChainerRegresser(BaseChainerEstimator, RegressorMixin):
     pass
 
 class ChainerClassifier(BaseChainerEstimator, ClassifierMixin):
+    def __init__(self, **params):
+        BaseChainerEstimator.__init__(self, **params)
+
     def predict(self, x_data):
         return BaseChainerEstimator.predict(self, x_data).argmax(1)
 
@@ -150,7 +153,7 @@ class ChainerClassifier(BaseChainerEstimator, ClassifierMixin):
 # --------------------------------------------------------------------------
 class LogisticRegression(ChainerClassifier):
     def __init__(self, net_hidden=100, net_out=5, **params):
-        BaseChainerEstimator.__init__(self, **params)
+        ChainerClassifier.__init__(self, **params)
         self.net_hidden = net_hidden
         self.net_out    = net_out
         self.param_names.append('net_hidden')
