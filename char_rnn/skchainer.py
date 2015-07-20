@@ -147,7 +147,7 @@ class ChainerClassifier(BaseChainerEstimator, ClassifierMixin):
         return F.softmax(y)
 
 # --------------------------------------------------------------------------
-class LogisticRegression(ChainerClassifier):
+class LogisticRegressionEstimator(ChainerClassifier):
     def __init__(self, net_hidden=100, net_out=5, **params):
         ChainerClassifier.__init__(self, **params)
         self.net_hidden = net_hidden
@@ -167,7 +167,7 @@ class LogisticRegression(ChainerClassifier):
         return y
 
 # --------------------------------------------------------------------------
-class RNNCharClassifier(ChainerClassifier):
+class RNNCharEstimator(ChainerClassifier):
     def __init__(self, net_type='lstm', net_hidden=100,
                        vocab_size=1000, dropout_ratio=0.0, seq_size=70, grad_clip=100.0,
                        **params):
