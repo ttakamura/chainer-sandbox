@@ -13,9 +13,36 @@ from CharLSTM import CharLSTM
 from CharIRNN import CharIRNN
 from sklearn.base import BaseEstimator, ClassifierMixin, RegressorMixin
 
+from sklearn.grid_search import GridSearchCV
+from sklearn.metrics import classification_report, confusion_matrix
+
+def grid_search(model, tuned_parameters, X_train, y_train, X_test, y_test, score='accuracy', n_jobs=-1):
+    print '\n' + '='*50
+    print score
+    print '='*50
+
+    clf = GridSearchCV(model, tuned_parameters, cv=3, scoring=score, n_jobs=n_jobs)
+    clf.fit(X_train, y_train)
+
+    print "\n+ Best:\n"
+    print clf.best_estimator_
+
+    print "\n+ Avg-score in train-data:\n"
+    for params, mean_score, all_scores in clf.grid_scores_:
+        print "{:.3f} (+/- {:.3f}) for {}".format(mean_score, all_scores.std() / 2, params)
+
+    print "\n+ Score in test-data:\n"
+    y_pred = clf.predict(X_test)
+    print classification_report(y_test, y_pred)
+
+    print '\n+ Confussion matrix:\n'
+    print confusion_matrix(y_test, y_pred)
+
+    return clf
+
 # --------------------------------------------------------------------------
 class BaseChainerEstimator(BaseEstimator):
-    def __init__(self, epochs=1000, batch_size=100, report=1, threshold=1e-10,
+    def __init__(self, epochs=1000, batch_size=100, report=0, threshold=1e-10,
                        opt_type='sgd', opt_lr=0.001):
         self.epochs     = epochs
         self.batch_size = batch_size
@@ -28,7 +55,12 @@ class BaseChainerEstimator(BaseEstimator):
         error("Not yet implemented")
 
     def setup_optimizer(self):
-        self.optimizer = optimizers.SGD()
+        if self.opt_type == 'sgd':
+            self.optimizer = optimizers.SGD(lr=self.opt_lr)
+        elif self.opt_type == 'adagrad':
+            self.optimizer = optimizers.AdaGrad(lr=self.opt_lr)
+        elif self.opt_type == 'adam':
+            self.optimizer = optimizers.Adam()
         self.optimizer.setup(self.network.collect_parameters())
 
     def forward(self, x):
@@ -76,7 +108,7 @@ class BaseChainerEstimator(BaseEstimator):
         score = loss.data
         score_diff = prev_score - score
         if not score_diff == 0.0 and abs(score_diff) < self.threshold:
-            print("Finish fit iterations!! ==========================")
+            # print("Finish fit iterations!! ==========================")
             self.converge = True
         if self.report > 0 and epoch % self.report == 0:
             self.print_report(epoch, score, score_diff)
@@ -105,7 +137,7 @@ class ChainerClassifier(BaseChainerEstimator, ClassifierMixin):
 
 # --------------------------------------------------------------------------
 class LogisticRegression(ChainerClassifier):
-    def __init__(self, epochs=100, batch_size=100, report=1, threshold=1e-10,
+    def __init__(self, epochs=100, batch_size=100, report=0, threshold=1e-10,
                        net_hidden=100, net_out=5,
                        opt_type='sgd', opt_lr=0.001):
         BaseChainerEstimator.__init__(self, epochs=epochs, batch_size=batch_size, report=report, threshold=threshold, opt_type=opt_type, opt_lr=opt_lr)
