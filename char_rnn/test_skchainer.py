@@ -1,6 +1,9 @@
 import numpy as np
 from scipy import special
 import skchainer as skc
+from chainer import cuda
+
+# cuda.init()
 
 X = np.linspace(-10, 10, 500).astype(np.float32)
 p = special.expit(X)

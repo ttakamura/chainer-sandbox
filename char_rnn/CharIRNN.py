@@ -1,9 +1,9 @@
 import numpy as np
-from chainer import Variable, FunctionSet
+from chainer import cuda, Variable, FunctionSet
 import chainer.functions as F
 
 class CharIRNN(FunctionSet):
-    def __init__(self, n_vocab, n_units):
+    def __init__(self, n_vocab, n_units, batch_size, gpu=-1):
         super(CharIRNN, self).__init__(
             embed = F.EmbedID(n_vocab, n_units),
             l1_x  = F.Linear(n_units, n_units),
@@ -17,6 +17,8 @@ class CharIRNN(FunctionSet):
         # IRNN
         self.l1_h.W = np.eye(self.l1_h.W.shape[0], dtype=np.float32) * 0.5
         self.l2_h.W = np.eye(self.l2_h.W.shape[0], dtype=np.float32) * 0.5
+        self.gpu    = gpu
+        self.reset_state(batch_size)
 
     def forward(self, x_data, state, train=True, dropout_ratio=0.5):
         x = Variable(x_data, volatile=not train)
@@ -36,16 +38,23 @@ class CharIRNN(FunctionSet):
         y = self.l3(h2)
         return {'h1': h1, 'h2': h2}, y
 
-    def train(self, x_data, y_data, state, dropout_ratio=0.5):
+    def train(self, x_data, y_data, dropout_ratio=0.5):
         t = Variable(y_data)
-        new_state, y = self.forward(x_data, state, train=True, dropout_ratio=0.0)
-        return new_state, F.softmax_cross_entropy(y, t)
+        new_state, y = self.forward(x_data, self.state, train=True, dropout_ratio=0.0)
+        self.state = new_state
+        return F.softmax_cross_entropy(y, t)
 
-    def predict(self, x_data, state):
-        new_state, y = self.forward(x_data, state, train=False, dropout_ratio=0.0)
-        return new_state, F.softmax(y)
+    def predict(self, x_data):
+        new_state, y = self.forward(x_data, self.state, train=False, dropout_ratio=0.0)
+        self.state = new_state
+        return F.softmax(y)
 
-    def make_initial_state(self, n_units, batchsize=50, train=True):
-        return {name: Variable(np.zeros((batchsize, n_units), dtype=np.float32),
-                volatile=not train)
+    def make_initial_state(self, n_units, batch_size=50, train=True):
+        return {name: Variable(np.zeros((batch_size, n_units), dtype=np.float32), volatile=not train)
                 for name in ('h1', 'h2')}
+
+    def reset_state(self, batch_size):
+        self.state = self.make_initial_state(n_units, batch_size=batch_size)
+        if self.gpu >= 0:
+            for key, value in self.state.items():
+                value.data = cuda.to_gpu(value.data)

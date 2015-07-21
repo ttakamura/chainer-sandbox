@@ -75,7 +75,6 @@ class BaseChainerEstimator(BaseEstimator):
 
         self.setup_network(self.n_features)
         if self.gpu >= 0:
-            cuda.init()
             self.network.to_gpu()
         self.setup_optimizer()
 
@@ -112,7 +111,6 @@ class BaseChainerEstimator(BaseEstimator):
         score = cuda.to_cpu(loss).data
         score_diff = prev_score - score
         if not score_diff == 0.0 and abs(score_diff) < self.threshold:
-            # print("Finish fit iterations!! ==========================")
             self.converge = True
         if self.report > 0 and epoch % self.report == 0:
             self.print_report(epoch, score, score_diff)
@@ -184,17 +182,11 @@ class RNNCharEstimator(ChainerClassifier):
 
     def setup_network(self, n_features):
         if self.net_type == 'lstm':
-            self.network = CharLSTM(self.vocab_size, self.net_hidden)
+            self.network = CharLSTM(self.vocab_size, self.net_hidden, gpu=self.gpu)
         elif self.net_type == 'irnn':
-            self.network = CharIRNN(self.vocab_size, self.net_hidden)
+            self.network = CharIRNN(self.vocab_size, self.net_hidden, gpu=self.gpu)
         else:
             error("Unknown net_type")
-
-        self.state = self.network.make_initial_state(self.net_hidden, batch_size=self.batch_size)
-        if self.gpu >= 0:
-            for key, value in self.state.items():
-                value.data = cuda.to_gpu(value.data)
-
         self.reset_accum_loss()
 
     def reset_accum_loss(self):
@@ -204,19 +196,15 @@ class RNNCharEstimator(ChainerClassifier):
             self.accum_loss = Variable(np.zeros(()))
 
     def forward_train(self, x, t):
-        new_state, loss = self.network.train(x, t, self.state, dropout_ratio=self.dropout_ratio)
-        self.state = new_state
-        return loss
+        return self.network.train(x, t, dropout_ratio=self.dropout_ratio)
 
     def forward_predict(self, x):
-        new_state, prediction = self.network.predict(x, self.state)
-        self.state = new_state
-        return prediction
+        return self.network.predict(x)
 
     def fit_update(self, loss, batch_id):
         self.accum_loss += loss
 
-        if (batch_id + 1) % self.seq_size == 0: # Run Truncated BPTT
+        if ((batch_id + 1) % self.seq_size) == 0: # Run Truncated BPTT
             self.optimizer.zero_grads()
             self.accum_loss.backward()
             self.accum_loss.unchain_backward()  # truncate
