@@ -81,7 +81,8 @@ class BaseChainerEstimator(BaseEstimator):
         score = 0.0
         for epoch in xrange(self.epochs):
             if not self.converge:
-                for i in xrange(self.n_samples / self.batch_size):
+                batch_num = self.n_samples / self.batch_size
+                for i in xrange(batch_num):
                     x_batch, y_batch = self.make_batch(x_data, y_data, i)
                     if self.gpu >= 0:
                         x = Variable(cuda.to_gpu(x))
@@ -89,9 +90,12 @@ class BaseChainerEstimator(BaseEstimator):
                     else:
                         x = Variable(x_batch)
                         t = Variable(y_batch)
+
                     loss = self.forward_train(x, t)
                     self.fit_update(loss, i)
-                score = self.fit_report(epoch, loss, score)
+
+                    if (i % batch_num) == 0:
+                        self.fit_report(epoch, loss, score)
         return self
 
     def make_batch(self, x_data, y_data, batch_id):
@@ -182,9 +186,9 @@ class RNNCharEstimator(ChainerClassifier):
 
     def setup_network(self, n_features):
         if self.net_type == 'lstm':
-            self.network = CharLSTM(self.vocab_size, self.net_hidden, gpu=self.gpu)
+            self.network = CharLSTM(self.vocab_size, self.net_hidden, self.batch_size)
         elif self.net_type == 'irnn':
-            self.network = CharIRNN(self.vocab_size, self.net_hidden, gpu=self.gpu)
+            self.network = CharIRNN(self.vocab_size, self.net_hidden, self.batch_size)
         else:
             error("Unknown net_type")
         self.reset_accum_loss()
@@ -203,7 +207,6 @@ class RNNCharEstimator(ChainerClassifier):
 
     def fit_update(self, loss, batch_id):
         self.accum_loss += loss
-
         if ((batch_id + 1) % self.seq_size) == 0: # Run Truncated BPTT
             self.optimizer.zero_grads()
             self.accum_loss.backward()
@@ -217,5 +220,7 @@ class RNNCharEstimator(ChainerClassifier):
         x_batch = np.array([x_data[(batch_id + batch_num * j) % self.n_samples]
                             for j in xrange(self.batch_size)])
         y_batch = np.array([y_data[(batch_id + batch_num * j) % self.n_samples]
-                            for j in xrange(self.batch_num)])
+                            for j in xrange(self.batch_size)])
+        print x_batch.shape
+        print y_batch.shape
         return x_batch, y_batch

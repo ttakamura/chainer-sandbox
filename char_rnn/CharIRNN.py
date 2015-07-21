@@ -1,9 +1,10 @@
+import six
 import numpy as np
 from chainer import cuda, Variable, FunctionSet
 import chainer.functions as F
 
 class CharIRNN(FunctionSet):
-    def __init__(self, n_vocab, n_units, batch_size, gpu=-1):
+    def __init__(self, n_vocab, n_units, batch_size):
         super(CharIRNN, self).__init__(
             embed = F.EmbedID(n_vocab, n_units),
             l1_x  = F.Linear(n_units, n_units),
@@ -12,16 +13,24 @@ class CharIRNN(FunctionSet):
             l2_x  = F.Linear(n_units, n_units),
             l3    = F.Linear(n_units, n_vocab),
         )
+        self.sorted_funcs = sorted(six.iteritems(self.__dict__))
         for param in self.parameters:
             param[:] = np.random.uniform(-0.08, 0.08, param.shape)
-        # IRNN
         self.l1_h.W = np.eye(self.l1_h.W.shape[0], dtype=np.float32) * 0.5
         self.l2_h.W = np.eye(self.l2_h.W.shape[0], dtype=np.float32) * 0.5
-        self.gpu    = gpu
         self.reset_state(batch_size)
 
-    def forward(self, x_data, state, train=True, dropout_ratio=0.5):
-        x = Variable(x_data, volatile=not train)
+    def _get_sorted_funcs(self):
+        return self.sorted_funcs
+
+    # def to_gpu
+    # TODO
+    # if self.gpu >= 0:
+    #     for key, value in self.network.state.items():
+    #         value.data = cuda.to_gpu(value.data)
+
+    def forward(self, x, state, train=True, dropout_ratio=0.5):
+        # x.volatile = not train
 
         h0 = self.embed(x)
         if dropout_ratio > 0.1:
@@ -38,14 +47,13 @@ class CharIRNN(FunctionSet):
         y = self.l3(h2)
         return {'h1': h1, 'h2': h2}, y
 
-    def train(self, x_data, y_data, dropout_ratio=0.5):
-        t = Variable(y_data)
-        new_state, y = self.forward(x_data, self.state, train=True, dropout_ratio=0.0)
+    def train(self, x, t, dropout_ratio=0.5):
+        new_state, y = self.forward(x, self.state, train=True, dropout_ratio=0.0)
         self.state = new_state
         return F.softmax_cross_entropy(y, t)
 
-    def predict(self, x_data):
-        new_state, y = self.forward(x_data, self.state, train=False, dropout_ratio=0.0)
+    def predict(self, x):
+        new_state, y = self.forward(x, self.state, train=False, dropout_ratio=0.0)
         self.state = new_state
         return F.softmax(y)
 
@@ -54,7 +62,4 @@ class CharIRNN(FunctionSet):
                 for name in ('h1', 'h2')}
 
     def reset_state(self, batch_size):
-        self.state = self.make_initial_state(n_units, batch_size=batch_size)
-        if self.gpu >= 0:
-            for key, value in self.state.items():
-                value.data = cuda.to_gpu(value.data)
+        self.state = self.make_initial_state(self.l1_h.W.shape[0], batch_size=batch_size)
