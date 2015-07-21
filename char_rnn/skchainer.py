@@ -203,6 +203,7 @@ class RNNCharEstimator(ChainerClassifier):
         return self.network.train(x, t, dropout_ratio=self.dropout_ratio)
 
     def forward_predict(self, x):
+        # TODO: batch_size を 1 にする
         return self.network.predict(x)
 
     def fit_update(self, loss, batch_id):
