@@ -180,6 +180,7 @@ class RNNCharEstimator(ChainerClassifier):
         self.dropout_ratio = dropout_ratio
         self.seq_size      = seq_size
         self.grad_clip     = grad_clip
+        self.param_names.append('vocab_size')
         self.param_names.append('net_type')
         self.param_names.append('net_hidden')
         self.param_names.append('dropout_ratio')
@@ -202,9 +203,21 @@ class RNNCharEstimator(ChainerClassifier):
     def forward_train(self, x, t):
         return self.network.train(x, t, dropout_ratio=self.dropout_ratio)
 
-    def forward_predict(self, x):
-        # TODO: batch_size を 1 にする
-        return self.network.predict(x)
+    def predict(self, x_data):
+        if self.gpu >= 0:
+            x_data = cuda.to_gpu(x_data)
+        self.network.reset_state(1)
+        results = None
+        for i in xrange(x_data.shape[0]):
+            x = Variable(x_data[i,:])
+            y = cuda.to_cpu(self.network.predict(x))
+            if results == None:
+                results = y.data
+            else:
+                results = np.concatenate([results, y.data])
+        results = results.argmax(1)
+        print results
+        return results
 
     def fit_update(self, loss, batch_id):
         self.accum_loss += loss
@@ -222,6 +235,4 @@ class RNNCharEstimator(ChainerClassifier):
                             for j in xrange(self.batch_size)])
         y_batch = np.array([y_data[(batch_id + batch_num * j) % self.n_samples]
                             for j in xrange(self.batch_size)])
-        print x_batch.shape
-        print y_batch.shape
         return x_batch, y_batch
