@@ -27,10 +27,9 @@ y = dataset[1:doc_len]
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=0)
 
 tuned_parameters = [
-    {'net_type': ['irnn'], 'opt_type': ['adagrad'], 'opt_lr': [0.01, 0.001], 'net_hidden': [100], 'epochs':[1, 3]},
-    {'net_type': ['irnn'], 'opt_type': ['adam'],                             'net_hidden': [100], 'epochs':[1, 3]}
+    {'net_type': ['irnn'], 'opt_type': ['adam'], 'net_hidden': [100]}
 ]
-model = skc.RNNCharEstimator(batch_size=10, vocab_size=len(vocab), threshold=1e-6)
+model = skc.RNNCharEstimator(epochs=3, batch_size=10, vocab_size=len(vocab), threshold=1e-6)
 
 skc.grid_search(model, tuned_parameters, X_train, y_train, X_test, y_test, score='accuracy')
 
