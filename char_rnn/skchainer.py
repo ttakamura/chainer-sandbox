@@ -216,7 +216,6 @@ class RNNCharEstimator(ChainerClassifier):
             else:
                 results = np.concatenate([results, y.data])
         results = results.argmax(1)
-        print results
         return results
 
     def fit_update(self, loss, batch_id):
