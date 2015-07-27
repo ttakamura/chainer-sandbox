@@ -2,7 +2,6 @@ import numpy as np
 from sklearn import datasets
 from sklearn.cross_validation import train_test_split
 from chainer import cuda
-
 import skchainer as skc
 
 document = list("123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ" * 1000)
@@ -22,7 +21,6 @@ dataset = parse(document, vocab)
 
 X = dataset[0:doc_len-1].reshape(doc_len-1, 1)
 y = dataset[1:doc_len]
-
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=0)
 
 tuned_parameters = [
@@ -30,6 +28,9 @@ tuned_parameters = [
 ]
 model = skc.RNNCharEstimator(epochs=3, batch_size=10, vocab_size=len(vocab), threshold=1e-6)
 
+import code; code.interact(local=locals())
+
 skc.grid_search(model, tuned_parameters, X_train, y_train, X_test, y_test, score='accuracy', n_jobs=1)
 
+# predict -----------------------
 print model.predict(X[1:5,])
