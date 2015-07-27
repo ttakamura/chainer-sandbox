@@ -6,7 +6,6 @@ from chainer import cuda
 import skchainer as skc
 
 document = list("123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ" * 1000)
-
 # cuda.init()
 
 def parse(words, vocab):
