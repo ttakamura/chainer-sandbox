@@ -232,7 +232,7 @@ class RNNCharEstimator(ChainerClassifier):
     def make_batch(self, x_data, y_data, batch_id):
         batch_num = self.n_samples / self.batch_size
         x_batch = np.array([x_data[(batch_id + batch_num * j) % self.n_samples]
-                            for j in xrange(self.batch_size)])
+                            for j in xrange(self.batch_size)]).reshape(self.batch_size)
         y_batch = np.array([y_data[(batch_id + batch_num * j) % self.n_samples]
                             for j in xrange(self.batch_size)])
         return x_batch, y_batch
