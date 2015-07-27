@@ -234,7 +234,4 @@ class RNNCharEstimator(ChainerClassifier):
                             for j in xrange(self.batch_size)])
         y_batch = np.array([y_data[(batch_id + batch_num * j) % self.n_samples]
                             for j in xrange(self.batch_size)])
-
-        import code; code.interact(local=locals())
-
         return x_batch, y_batch
