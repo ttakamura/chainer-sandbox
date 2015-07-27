@@ -201,7 +201,7 @@ class RNNCharEstimator(ChainerClassifier):
             self.accum_loss = Variable(np.zeros(()))
 
     def forward_train(self, x, t):
-        print x.shape
+        print x.data.shape
         return self.network.train(x, t, dropout_ratio=self.dropout_ratio)
 
     def predict(self, x_data):
