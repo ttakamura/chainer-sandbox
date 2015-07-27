@@ -28,7 +28,7 @@ tuned_parameters = [
 ]
 model = skc.RNNCharEstimator(epochs=3, batch_size=10, vocab_size=len(vocab), threshold=1e-6)
 
-skc.grid_search(model, tuned_parameters, X_train, y_train, X_test, y_test, score='accuracy', n_jobs=1)
+skc.grid_search(model, tuned_parameters, X_train, y_train, X_test, y_test, score='accuracy', n_jobs=8)
 
 # predict -----------------------
 print model.predict(X[1:5,])
