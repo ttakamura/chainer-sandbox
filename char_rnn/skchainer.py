@@ -16,12 +16,20 @@ from sklearn.base import BaseEstimator, ClassifierMixin, RegressorMixin
 from sklearn.grid_search import GridSearchCV
 from sklearn.metrics import classification_report, confusion_matrix
 
+def random_search(model, tuned_parameters, X_train, y_train, X_test, y_test, score='accuracy', n_jobs=-1, n_iter=10):
+    clf = RandomizedSearchCV(estimator=model, param_distributions=tuned_parameters,
+                             cv=3, scoring=score, n_jobs=n_jobs, n_iter=n_iter)
+    return parameters_search(clf, X_train, y_train, X_test, y_test, score)
+
 def grid_search(model, tuned_parameters, X_train, y_train, X_test, y_test, score='accuracy', n_jobs=-1):
+    clf = GridSearchCV(estimator=model, param_grid=tuned_parameters,
+                       cv=3, scoring=score, n_jobs=n_jobs)
+    return parameters_search(clf, X_train, y_train, X_test, y_test, score)
+
+def parameters_search(clf, X_train, y_train, X_test, y_test, score):
     print '\n' + '='*50
     print score
     print '='*50
-
-    clf = GridSearchCV(model, tuned_parameters, cv=3, scoring=score, n_jobs=n_jobs)
     clf.fit(X_train, y_train)
 
     print "\n+ Best:\n"
