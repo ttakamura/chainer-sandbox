@@ -13,7 +13,7 @@ from CharLSTM import CharLSTM
 from CharIRNN import CharIRNN
 from sklearn.base import BaseEstimator, ClassifierMixin, RegressorMixin
 
-from sklearn.grid_search import GridSearchCV
+from sklearn.grid_search import GridSearchCV, RandomizedSearchCV
 from sklearn.metrics import classification_report, confusion_matrix
 
 def random_search(model, tuned_parameters, X_train, y_train, X_test, y_test, score='accuracy', n_jobs=-1, n_iter=10):
