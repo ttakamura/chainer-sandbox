@@ -26,6 +26,7 @@ X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_
 tuned_parameters = [
     {'net_type': ['irnn'], 'opt_type': ['adam', 'sgd', 'adagrad'], 'net_hidden': [100, 200, 300]}
 ]
+
 model = skc.RNNCharEstimator(epochs=3, batch_size=10, vocab_size=len(vocab), threshold=1e-6)
 
 skc.grid_search(model, tuned_parameters, X_train, y_train, X_test, y_test, score='accuracy', n_jobs=-1)
