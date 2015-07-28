@@ -41,9 +41,9 @@ if args.search == 'grid':
     skc.grid_search(model, tuned_parameters, X_train, y_train, X_test, y_test, score='accuracy', n_jobs=args.n_jobs)
 
 elif args.search == 'random':
-    tuned_parameters = [
-        {'net_type': ['irnn'], 'opt_type': ['adam', 'sgd', 'adagrad'], 'net_hidden': [sp.stats.norm(200, 200)]}
-    ]
+    tuned_parameters = {
+        'net_type': ['irnn'], 'opt_type': ['adam', 'sgd', 'adagrad'], 'net_hidden': [sp.stats.norm(200, 200)]
+    }
     skc.random_search(model, tuned_parameters, X_train, y_train, X_test, y_test, score='accuracy', n_jobs=args.n_jobs, n_iter=args.n_iter)
 
 # predict -----------------------
