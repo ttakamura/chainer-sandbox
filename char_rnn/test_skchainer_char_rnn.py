@@ -6,7 +6,7 @@ from sklearn.cross_validation import train_test_split
 from chainer import cuda
 import skchainer as skc
 
-document = list("123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ" * 100)
+document = list("123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ" * 200)
 # cuda.init()
 
 def parse(words, vocab):
