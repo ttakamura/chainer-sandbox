@@ -4,7 +4,7 @@ from sklearn.cross_validation import train_test_split
 from chainer import cuda
 import skchainer as skc
 
-document = list("123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ" * 1000)
+document = list("123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ" * 100)
 # cuda.init()
 
 def parse(words, vocab):
@@ -24,11 +24,11 @@ y = dataset[1:doc_len]
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=0)
 
 tuned_parameters = [
-    {'net_type': ['irnn'], 'opt_type': ['adam'], 'net_hidden': [50, 100, 200, 300]}
+    {'net_type': ['irnn'], 'opt_type': ['adam', 'sgd', 'adagrad'], 'net_hidden': [100, 200, 300]}
 ]
-model = skc.RNNCharEstimator(epochs=2, batch_size=10, vocab_size=len(vocab), threshold=1e-6)
+model = skc.RNNCharEstimator(epochs=3, batch_size=10, vocab_size=len(vocab), threshold=1e-6)
 
-skc.grid_search(model, tuned_parameters, X_train, y_train, X_test, y_test, score='accuracy', n_jobs=8)
+skc.grid_search(model, tuned_parameters, X_train, y_train, X_test, y_test, score='accuracy', n_jobs=-1)
 
 # predict -----------------------
-print model.predict(X[1:5,])
+# print model.predict(X[1:5,])
