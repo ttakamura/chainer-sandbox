@@ -25,7 +25,7 @@ X = dataset[0:doc_len-1].reshape(doc_len-1, 1)
 y = dataset[1:doc_len]
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=0)
 
-model = skc.RNNCharEstimator(epochs=4, batch_size=10, vocab_size=len(vocab), threshold=1e-6)
+model = skc.RNNCharEstimator(epochs=1, batch_size=10, vocab_size=len(vocab), threshold=1e-6)
 
 # -----------------------------------------------------------------------------------------
 parser = argparse.ArgumentParser()
@@ -36,13 +36,13 @@ args = parser.parse_args()
 
 if args.search == 'grid':
     tuned_parameters = [
-        {'net_type': ['irnn'], 'opt_type': ['adam', 'sgd', 'adagrad'], 'net_hidden': [100, 200, 300]}
+        {'net_type': ['irnn'], 'opt_type': ['adam', 'adagrad'], 'net_hidden': [100, 200, 300]}
     ]
     skc.grid_search(model, tuned_parameters, X_train, y_train, X_test, y_test, score='accuracy', n_jobs=args.n_jobs)
 
 elif args.search == 'random':
     tuned_parameters = {
-        'net_type': ['irnn'], 'opt_type': ['adam', 'sgd', 'adagrad'], 'net_hidden': [sp.stats.norm(200, 200)]
+        'net_type': ['irnn'], 'opt_type': ['adam', 'adagrad'], 'net_hidden': [sp.stats.norm(200, 200)]
     }
     skc.random_search(model, tuned_parameters, X_train, y_train, X_test, y_test, score='accuracy', n_jobs=args.n_jobs, n_iter=args.n_iter)
 
