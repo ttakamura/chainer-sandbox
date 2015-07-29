@@ -42,7 +42,7 @@ if args.search == 'grid':
 
 elif args.search == 'random':
     tuned_parameters = {
-        'net_type': ['irnn'], 'opt_type': ['adam', 'adagrad'], 'net_hidden': [sp.stats.norm(200, 200)]
+        'net_type': ['irnn'], 'opt_type': ['adam', 'adagrad'], 'net_hidden': sp.stats.norm(300, 100)
     }
     skc.random_search(model, tuned_parameters, X_train, y_train, X_test, y_test, score='accuracy', n_jobs=args.n_jobs, n_iter=args.n_iter)
 
