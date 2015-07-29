@@ -25,7 +25,7 @@ X = dataset[0:doc_len-1].reshape(doc_len-1, 1)
 y = dataset[1:doc_len]
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=0)
 
-model = skc.RNNCharEstimator(epochs=3, batch_size=10, vocab_size=len(vocab), threshold=1e-6)
+model = skc.RNNCharEstimator(epochs=4, batch_size=10, vocab_size=len(vocab), threshold=1e-6)
 
 # -----------------------------------------------------------------------------------------
 parser = argparse.ArgumentParser()
