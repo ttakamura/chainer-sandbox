@@ -27,17 +27,18 @@ X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_
 
 # -----------------------------------------------------------------------------------------
 parser = argparse.ArgumentParser()
-parser.add_argument('--net_type', type=str, default='irnn')
-parser.add_argument('--search', type=str,   default='grid')
-parser.add_argument('--n_jobs', type=int,   default=-1)
-parser.add_argument('--n_iter', type=int,   default=10)
-parser.add_argument('--gpu',    type=int,   default=-1)
+parser.add_argument('--net_type',   type=str, default='irnn')
+parser.add_argument('--search',     type=str, default='grid')
+parser.add_argument('--n_jobs',     type=int, default=-1)
+parser.add_argument('--n_iter',     type=int, default=10)
+parser.add_argument('--gpu',        type=int, default=-1)
+parser.add_argument('--batch_size', type=int, default=20)
 args = parser.parse_args()
 
 if args.gpu >= 0:
     cuda.init()
 
-model = skc.RNNCharEstimator(epochs=1, batch_size=10, vocab_size=len(vocab), threshold=1e-6, gpu=args.gpu)
+model = skc.RNNCharEstimator(epochs=1, batch_size=args.batch_size, vocab_size=len(vocab), threshold=1e-6, gpu=args.gpu)
 
 if args.search == 'grid':
     tuned_parameters = [
