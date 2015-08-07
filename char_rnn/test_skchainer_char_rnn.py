@@ -32,11 +32,10 @@ parser.add_argument('--search',     type=str, default='grid')
 parser.add_argument('--n_jobs',     type=int, default=-1)
 parser.add_argument('--n_iter',     type=int, default=10)
 parser.add_argument('--gpu',        type=int, default=-1)
-parser.add_argument('--batch_size', type=int, default=20)
 parser.add_argument('--epochs',     type=int, default=1)
 args = parser.parse_args()
 
-model = skc.RNNCharEstimator(epochs=args.epochs, batch_size=args.batch_size, vocab_size=len(vocab), threshold=1e-6)
+model = skc.RNNCharEstimator(epochs=args.epochs, vocab_size=len(vocab), threshold=1e-6)
 
 if args.search == 'grid':
     tuned_parameters = [
@@ -44,6 +43,7 @@ if args.search == 'grid':
          'opt_type':   ['adam', 'adagrad'],
          'opt_lr':     [0.01, 0.001],
          'net_hidden': [200, 300],
+         'batch_size': [10, 20, 40],
          'gpu':        [args.gpu]}
     ]
     skc.grid_search(model, tuned_parameters, X_train, y_train, X_test, y_test, score='accuracy', n_jobs=args.n_jobs)
