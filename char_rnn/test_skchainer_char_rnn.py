@@ -29,6 +29,7 @@ model = skc.RNNCharEstimator(epochs=1, batch_size=10, vocab_size=len(vocab), thr
 
 # -----------------------------------------------------------------------------------------
 parser = argparse.ArgumentParser()
+parser.add_argument('--net_type', type=str, default='lstm')
 parser.add_argument('--search', type=str,   default='grid')
 parser.add_argument('--n_jobs', type=int,   default=-1)
 parser.add_argument('--n_iter', type=int,   default=10)
