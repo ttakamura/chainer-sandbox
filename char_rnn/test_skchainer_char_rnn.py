@@ -28,7 +28,7 @@ X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_
 # -----------------------------------------------------------------------------------------
 parser = argparse.ArgumentParser()
 parser.add_argument('--net_type',   type=str, default='irnn')
-parser.add_argument('--search',     type=str, default='grid')
+parser.add_argument('--mode',       type=str, default='grid')
 parser.add_argument('--n_jobs',     type=int, default=-1)
 parser.add_argument('--n_iter',     type=int, default=10)
 parser.add_argument('--gpu',        type=int, default=-1)
@@ -37,7 +37,7 @@ args = parser.parse_args()
 
 model = skc.RNNCharEstimator(epochs=args.epochs, vocab_size=len(vocab), threshold=1e-6)
 
-if args.search == 'grid':
+if args.mode == 'grid':
     tuned_parameters = [
         {'net_type':   ['irnn'],
          'opt_type':   ['adam'],
@@ -48,11 +48,14 @@ if args.search == 'grid':
     ]
     skc.grid_search(model, tuned_parameters, X_train, y_train, X_test, y_test, score='accuracy', n_jobs=args.n_jobs)
 
-elif args.search == 'random':
+elif args.mode == 'random':
     tuned_parameters = {
         'net_type': ['irnn'], 'opt_type': ['adam', 'adagrad'], 'net_hidden': sp.stats.norm(300, 100)
     }
     skc.random_search(model, tuned_parameters, X_train, y_train, X_test, y_test, score='accuracy', n_jobs=args.n_jobs, n_iter=args.n_iter)
+
+elif args.mode == 'time':
+    print("hello")
 
 # predict -----------------------
 # print model.predict(X[1:5,])

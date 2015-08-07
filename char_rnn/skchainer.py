@@ -88,9 +88,10 @@ class BaseChainerEstimator(BaseEstimator):
         self.setup_optimizer()
 
         score = 0.0
+        prev_time = time.time()
+        batch_num = self.n_samples / self.batch_size
         for epoch in xrange(self.epochs):
             if not self.converge:
-                batch_num = self.n_samples / self.batch_size
                 for i in xrange(batch_num):
                     x_batch, y_batch = self.make_batch(x_data, y_data, i)
                     if self.gpu >= 0:
@@ -105,6 +106,11 @@ class BaseChainerEstimator(BaseEstimator):
 
                     if (i % batch_num) == 0:
                         self.fit_report(epoch, loss, score)
+
+        elapsed = time.time() - prev_time
+        print "{1} sec ({2} batch/sec) \n{0}\n".format(self,
+                                                       elapsed,
+                                                       batch_num / elapsed)
         return self
 
     def make_batch(self, x_data, y_data, batch_id):
