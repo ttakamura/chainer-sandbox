@@ -23,11 +23,10 @@ class CharIRNN(FunctionSet):
     def _get_sorted_funcs(self):
         return self.sorted_funcs
 
-    # def to_gpu
-    # TODO
-    # if self.gpu >= 0:
-    #     for key, value in self.network.state.items():
-    #         value.data = cuda.to_gpu(value.data)
+    def to_gpu(self):
+        super(CharIRNN, self).to_gpu()
+        for key, value in self.state.items():
+            value.data = cuda.to_gpu(value.data)
 
     def forward(self, x, state, train=True, dropout_ratio=0.5):
         # x.volatile = not train

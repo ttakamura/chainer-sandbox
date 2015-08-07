@@ -93,8 +93,8 @@ class BaseChainerEstimator(BaseEstimator):
                 for i in xrange(batch_num):
                     x_batch, y_batch = self.make_batch(x_data, y_data, i)
                     if self.gpu >= 0:
-                        x = Variable(cuda.to_gpu(x))
-                        t = Variable(cuda.to_gpu(t))
+                        x = Variable(cuda.to_gpu(x_batch))
+                        t = Variable(cuda.to_gpu(y_batch))
                     else:
                         x = Variable(x_batch)
                         t = Variable(y_batch)

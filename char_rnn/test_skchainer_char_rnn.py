@@ -25,8 +25,6 @@ X = dataset[0:doc_len-1].reshape(doc_len-1, 1)
 y = dataset[1:doc_len]
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=0)
 
-model = skc.RNNCharEstimator(epochs=1, batch_size=10, vocab_size=len(vocab), threshold=1e-6)
-
 # -----------------------------------------------------------------------------------------
 parser = argparse.ArgumentParser()
 parser.add_argument('--net_type', type=str, default='irnn')
@@ -35,6 +33,11 @@ parser.add_argument('--n_jobs', type=int,   default=-1)
 parser.add_argument('--n_iter', type=int,   default=10)
 parser.add_argument('--gpu',    type=int,   default=-1)
 args = parser.parse_args()
+
+if args.gpu >= 0:
+    cuda.init()
+
+model = skc.RNNCharEstimator(epochs=1, batch_size=10, vocab_size=len(vocab), threshold=1e-6, gpu=args.gpu)
 
 if args.search == 'grid':
     tuned_parameters = [
