@@ -42,7 +42,7 @@ if args.search == 'grid':
     tuned_parameters = [
         {'net_type':   ['irnn'],
          'opt_type':   ['adam', 'adagrad'],
-         'opt_lr':     [0.05],
+         'opt_lr':     [0.01, 0.1],
          'net_hidden': [200, 300],
          'gpu':        [args.gpu]}
     ]
