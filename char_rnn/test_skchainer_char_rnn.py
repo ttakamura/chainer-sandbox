@@ -35,9 +35,6 @@ parser.add_argument('--gpu',        type=int, default=-1)
 parser.add_argument('--batch_size', type=int, default=20)
 args = parser.parse_args()
 
-if args.gpu >= 0:
-    cuda.init()
-
 model = skc.RNNCharEstimator(epochs=1, batch_size=args.batch_size, vocab_size=len(vocab), threshold=1e-6, gpu=args.gpu)
 
 if args.search == 'grid':

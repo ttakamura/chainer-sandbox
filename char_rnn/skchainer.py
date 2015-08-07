@@ -83,6 +83,7 @@ class BaseChainerEstimator(BaseEstimator):
 
         self.setup_network(self.n_features)
         if self.gpu >= 0:
+            cuda.init()
             self.network.to_gpu()
         self.setup_optimizer()
 
