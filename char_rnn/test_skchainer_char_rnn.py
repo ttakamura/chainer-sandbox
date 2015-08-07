@@ -40,7 +40,11 @@ model = skc.RNNCharEstimator(epochs=args.epochs, batch_size=args.batch_size, voc
 
 if args.search == 'grid':
     tuned_parameters = [
-        {'net_type': ['irnn'], 'opt_type': ['adam', 'adagrad'], 'net_hidden': [100, 200, 300], 'gpu': [args.gpu]}
+        {'net_type':   ['irnn'],
+         'opt_type':   ['adam', 'adagrad'],
+         'opt_lr':     [0.05],
+         'net_hidden': [200, 300],
+         'gpu':        [args.gpu]}
     ]
     skc.grid_search(model, tuned_parameters, X_train, y_train, X_test, y_test, score='accuracy', n_jobs=args.n_jobs)
 

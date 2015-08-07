@@ -72,7 +72,7 @@ class BaseChainerEstimator(BaseEstimator):
         elif self.opt_type == 'adagrad':
             self.optimizer = optimizers.AdaGrad(lr=self.opt_lr)
         elif self.opt_type == 'adam':
-            self.optimizer = optimizers.Adam()
+            self.optimizer = optimizers.Adam(alpha=self.opt_lr)
         self.optimizer.setup(self.network.collect_parameters())
 
     def fit(self, x_data, y_data):
