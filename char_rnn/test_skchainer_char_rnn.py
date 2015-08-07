@@ -43,7 +43,7 @@ if args.mode == 'grid':
          'opt_type':   ['adam'],
          'opt_lr':     [0.01],
          'net_hidden': [200],
-         'batch_size': [5, 10, 20, 40, 80],
+         'batch_size': [3, 4, 5, 6, 7],
          'gpu':        [args.gpu]}
     ]
     skc.grid_search(model, tuned_parameters, X_train, y_train, X_test, y_test, score='accuracy', n_jobs=args.n_jobs)
