@@ -82,6 +82,7 @@ class BaseChainerEstimator(BaseEstimator):
         self.converge   = False
 
         self.setup_network(self.n_features)
+
         if self.gpu >= 0:
             cuda.init()
             self.network.to_gpu()
