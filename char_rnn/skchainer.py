@@ -50,8 +50,7 @@ def parameters_search(clf, X_train, y_train, X_test, y_test, score):
 
 # --------------------------------------------------------------------------
 class BaseChainerEstimator(BaseEstimator):
-    def __init__(self, epochs=1000, batch_size=100, report=0, threshold=1e-10, gpu=-1,
-                       opt_type='sgd', opt_lr=0.001):
+    def __init__(self, epochs=1000, batch_size=100, report=0, threshold=1e-10, gpu=-1, opt_type='sgd', opt_lr=0.001):
         self.epochs     = epochs
         self.batch_size = batch_size
         self.report     = report
@@ -59,7 +58,7 @@ class BaseChainerEstimator(BaseEstimator):
         self.opt_type   = opt_type
         self.opt_lr     = opt_lr
         self.gpu        = gpu
-        self.param_names = ['epochs', 'batch_size', 'threshold', 'opt_type', 'opt_lr']
+        self.param_names = ['epochs', 'batch_size', 'threshold', 'opt_type', 'opt_lr', 'gpu']
 
     def _get_param_names(self):
         return self.param_names
@@ -80,13 +79,13 @@ class BaseChainerEstimator(BaseEstimator):
         self.n_samples  = x_data.shape[0]
         self.n_features = x_data.shape[1]
         self.converge   = False
+        if self.gpu >= 0:
+            cuda.init()
 
         self.setup_network(self.n_features)
         if self.gpu >= 0:
-            print "This is GPU!!"
-            print self.gpu
-            cuda.init()
             self.network.to_gpu()
+
         self.setup_optimizer()
 
         score = 0.0
