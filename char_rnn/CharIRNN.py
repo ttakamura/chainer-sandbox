@@ -24,7 +24,12 @@ class CharIRNN(FunctionSet):
         return self.sorted_funcs
 
     def to_gpu(self):
-        super(CharIRNN, self).to_gpu()
+        self.embed.to_gpu()
+        self.l1_x.to_gpu()
+        self.l1_h.to_gpu()
+        self.l2_h.to_gpu()
+        self.l2_x.to_gpu()
+        self.l3.to_gpu()
         for key, value in self.state.items():
             value.data = cuda.to_gpu(value.data)
 

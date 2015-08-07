@@ -85,7 +85,6 @@ class BaseChainerEstimator(BaseEstimator):
         self.setup_network(self.n_features)
         if self.gpu >= 0:
             self.network.to_gpu()
-
         self.setup_optimizer()
 
         score = 0.0
@@ -122,7 +121,7 @@ class BaseChainerEstimator(BaseEstimator):
         self.optimizer.update()
 
     def fit_report(self, epoch, loss, prev_score):
-        score = cuda.to_cpu(loss).data
+        score = cuda.to_cpu(loss.data)
         score_diff = prev_score - score
         if not score_diff == 0.0 and abs(score_diff) < self.threshold:
             self.converge = True
@@ -135,7 +134,7 @@ class BaseChainerEstimator(BaseEstimator):
             x_data = cuda.to_gpu(x_data)
         x = Variable(x_data)
         y = self.forward_predict(x)
-        return cuda.to_cpu(y).data
+        return cuda.to_cpu(y.data)
 
     def print_report(self, epoch, loss, score):
         print("epoch: {0}, loss: {1}, diff: {2}".format(epoch, loss[0], score[0]))
@@ -220,7 +219,7 @@ class RNNCharEstimator(ChainerClassifier):
         results = None
         for i in xrange(x_data.shape[0]):
             x = Variable(x_data[i,:])
-            y = cuda.to_cpu(self.network.predict(x))
+            y = self.network.predict(x)
             if results == None:
                 results = y.data
             else:
