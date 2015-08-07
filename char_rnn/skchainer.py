@@ -213,17 +213,18 @@ class RNNCharEstimator(ChainerClassifier):
         return self.network.train(x, t, dropout_ratio=self.dropout_ratio)
 
     def predict(self, x_data):
-        if self.gpu >= 0:
-            x_data = cuda.to_gpu(x_data)
         self.network.reset_state(1)
+        if self.gpu >= 0:
+            self.network.to_gpu()
+            x_data = cuda.to_gpu(x_data)
         results = None
         for i in xrange(x_data.shape[0]):
             x = Variable(x_data[i,:])
             y = self.network.predict(x)
             if results == None:
-                results = y.data
+                results = cuda.to_cpu(y.data)
             else:
-                results = np.concatenate([results, y.data])
+                results = np.concatenate([results, cuda.to_cpu(y.data)])
         results = results.argmax(1)
         return results
 
