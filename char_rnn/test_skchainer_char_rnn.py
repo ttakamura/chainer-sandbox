@@ -33,9 +33,10 @@ parser.add_argument('--n_jobs',     type=int, default=-1)
 parser.add_argument('--n_iter',     type=int, default=10)
 parser.add_argument('--gpu',        type=int, default=-1)
 parser.add_argument('--batch_size', type=int, default=20)
+parser.add_argument('--epochs',     type=int, default=1)
 args = parser.parse_args()
 
-model = skc.RNNCharEstimator(epochs=1, batch_size=args.batch_size, vocab_size=len(vocab), threshold=1e-6)
+model = skc.RNNCharEstimator(epochs=args.epochs, batch_size=args.batch_size, vocab_size=len(vocab), threshold=1e-6)
 
 if args.search == 'grid':
     tuned_parameters = [
